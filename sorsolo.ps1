@@ -158,9 +158,7 @@ foreach ($game in $data)
 
     {
 
-        $game.Player = "NONE"
-        $game.Nyeremény = "NONE"
-        $game.Szorzo = "NONE"
+        $game.Player = "Földi"
 
     }
 
@@ -178,6 +176,70 @@ $player.'Nyeremény átlag' = [Math]::Round((($data | Where-Object {$_.Player -l
 $player.'Szorzó átlag' = [Math]::Round((($data | Where-Object {$_.Player -like $player.Név}).Szorzo | Measure-Object -Average).Average,2)
 
 }
+
+foreach ($leftGame in $data | where {$_.Player -eq "Földi"})
+
+{
+
+        write-host ""
+        write-host ----------- BONUSHUNT -----------
+        write-host ""
+        $playerlist | select Név, pont| Sort-Object -Property Pont -Descending | ft
+        write-host ---------------------------------
+        write-host ""
+        write-host "A következő játék: " -nonewline
+        write-host $($game.Játék) -ForegroundColor Yellow
+        write-host "Vendor: " -nonewline
+        write-host $($game.Vendor) -f Yellow
+        write-host "Alaptét: "-NoNewline
+        write-host $($game.alaptét) Ft -f Yellow
+        write-host "Játékos: "-NoNewline
+        write-host $($game.Player) -f Yellow
+        write-host ""
+
+
+        #Null Variables
+        $nyeremény = $null
+        $retrigger = $null
+
+
+        while ($nyeremény.Length -eq 0)
+        {
+        Write-Host "Mennyi lett a nyeremény? (Ft) " -ForegroundColor Yellow -NoNewline
+        $nyeremény = Read-Host
+        }
+        write-host ""
+
+        while ($retrigger.Length -eq 0)
+        {
+        Write-Host "Mennyi retrigger volt? " -ForegroundColor Yellow -NoNewline
+        $retrigger = Read-Host 
+        }
+        write-host ""
+
+        if ($retrigger -ne 0) {$összretrigger = $összretrigger + $retrigger}
+        
+        $game.Nyeremény = $nyeremény
+        $össznyeremény = $össznyeremény + $nyeremény
+        $game.Szorzo = $nyeremény/$game.Alaptét
+
+        $game.Szorzo = [math]::Round($game.Szorzo,2)
+
+        #if ((!($playerlist | where {$_.Név -eq $player}).Pont)){$game.Pont = 0}
+
+        
+        write-host "Szorzó: " $game.Szorzo "x"
+        write-host ""
+        write-host "--------------------------------"
+        write-host ""
+        write-host ""
+        write-host "Nyomj egy entert a következő játékhoz!" -f Yellow
+        read-host
+        cls
+
+}
+
+
 
 $playerlist | Sort-Object -Property 'Pont' -Descending
 write-host ----------- BONUSHUNT EREDMÉNY -----------
@@ -207,12 +269,18 @@ write-host ""
 $max = $data | Sort-Object -Property Szorzo -Descending | select -First 1 | select Játék, Szorzo, Player
 write-host Legnagyobb szorzó:
 write-host Játék: $max.Játék
-write-host Szorzó: $max.Szorzo
+write-host Szorzó: $max.Szorzo x
 write-host Player: $max.Player
 write-host 
 $min = $data | Sort-Object -Property Szorzo | select -First 1 | select Játék, Szorzo, Player
 write-host Legkisebb szorzó
 write-host Játék: $min.Játék
-write-host Szorzó: $min.Szorzo
+write-host Szorzó: $min.Szorzo x
 write-host Player: $min.Player
+write-host 
+
+$100xfolott = ($data | where {$_.Szorzo -gt 100}).Length
+$5xalatt = ($data | where {$_.Szorzo -lt 5}).Length
+write-host 100x fölöttiek száma: $100xfolott
+write-host 5x alattiak száma: $5xalatt
 write-host 
