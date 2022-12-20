@@ -1,4 +1,7 @@
-﻿try{
+#Requires -RunAsAdministrator
+Set-ExecutionPolicy Unrestricted -Confirm:$false
+
+try{
 
 set-location (Split-Path -Path $psISE.CurrentFile.FullPath)
 
